@@ -1,0 +1,5 @@
+.vscode
+*.so
+*.db
+*.elf
+*.exe
