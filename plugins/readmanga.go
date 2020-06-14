@@ -40,13 +40,18 @@ func (manga *MangaInfo) GetMetaData() {
 	parseMangaMetadata(manga, result)
 }
 
+// GetData - Returns all data
+func (manga *MangaInfo) GetData() types.MangaInfo {
+	return types.MangaInfo(*manga)
+}
+
 func getTranslationStatus(status *string) types.TranslationStatus {
 	var statusCode types.TranslationStatus
 	switch *status {
 	case "завершен":
 		statusCode = types.TS_FINISHED
 	case "продолжается":
-		statusCode = types.TS_IN_PROGRESS
+		statusCode = types.TS_CONTINUES
 	default:
 		statusCode = types.TS_UNKNOWN
 	}
@@ -59,7 +64,7 @@ func getMangaStatus(status *string) types.MangaCompletionStatus {
 	case "":
 		statusCode = types.MS_FINISHED
 	case "выпуск продолжается":
-		statusCode = types.MS_IN_PROGRESS
+		statusCode = types.MS_CONTINUES
 	default:
 		statusCode = types.MS_UNKNOWN
 	}
@@ -118,28 +123,28 @@ func parseMangaMetadata(manga *MangaInfo, response *http.Response) {
 
 	covers.Find("img").Each(func(i int, s *goquery.Selection) {
 		srcValue, srcExists := s.Attr("src")
-		fullValue, fullExists := s.Attr("data-full")
+		// fullValue, fullExists := s.Attr("data-full")
 
 		if srcExists {
 			manga.Covers = append(manga.Covers, srcValue)
 		}
 
-		if fullExists {
-			manga.CoversBig = append(manga.Covers, fullValue)
-		}
+		// if fullExists {
+		// 	manga.CoversBig = append(manga.Covers, fullValue)
+		// }
 	})
 
 	covers.Find("a").Each(func(i int, s *goquery.Selection) {
 		hrefValue, hrefExists := s.Attr("href")
-		fullValue, fullExists := s.Attr("data-full")
+		// fullValue, fullExists := s.Attr("data-full")
 
 		if hrefExists {
 			manga.Covers = append(manga.Covers, hrefValue)
 		}
 
-		if fullExists {
-			manga.CoversBig = append(manga.Covers, fullValue)
-		}
+		// if fullExists {
+		// 	manga.CoversBig = append(manga.Covers, fullValue)
+		// }
 	})
 
 	subjectMeta := leftContent.Find("div.subject-meta")
@@ -156,9 +161,9 @@ func parseMangaMetadata(manga *MangaInfo, response *http.Response) {
 		manga.Translators = append(manga.Translators, strings.Trim(s.Text(), " ,"))
 	})
 
-	subjectMeta.Find("span.elem_limitation").Each(func(i int, s *goquery.Selection) {
-		manga.Rating = append(manga.Rating, strings.Trim(s.Text(), " ,"))
-	})
+	// subjectMeta.Find("span.elem_limitation").Each(func(i int, s *goquery.Selection) {
+	// 	manga.Rating = append(manga.Rating, strings.Trim(s.Text(), " ,"))
+	// })
 
 	yearSelection := subjectMeta.Find("span.elem_year")
 	if nil != yearSelection {

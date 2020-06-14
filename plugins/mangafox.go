@@ -36,6 +36,10 @@ func (manga *MangaInfo) SetUrl(url string) {
 	manga.URL = url
 }
 
+func (manga *MangaInfo) GetData() types.MangaInfo {
+	return *manga
+}
+
 func (manga *MangaInfo) GetMetaData() {
 	result := getPageByURL(manga.URL)
 	parseMangaMetadata(manga, result)
@@ -185,8 +189,12 @@ func parseMangaChapter(chapter *types.MangaChapter, response *http.Response) {
 		return !isContains
 	})
 
-	log.Println(foundScript)
+	defaultRegex := regexp.MustCompile(`comicid[^\d]+(?P<comicid>\d+).*chapterid[^\d]+(?P<chapterid>\d+).*imagepage[^\d]+(?P<imagepage>\d+).*imagecount[^\d]+(?P<imagecount>\d+)`)
+	result := utils.FindNamedMatches(defaultRegex, foundScript)
 
+	document.Find("div.pager-list-left")
+
+	log.Println(result)
 }
 
 func appendChapter(manga *MangaInfo, chapter string, link string, index int) {

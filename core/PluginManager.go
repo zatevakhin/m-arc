@@ -26,11 +26,6 @@ func getPluginNameFromURL(urlString string) string {
 	return u.Hostname()
 }
 
-// SetPluginsFolder - sss
-func (pm *PluginManager) SetPluginsFolder(folder string) {
-	pm.PluginsFolder = folder
-}
-
 // GetPluginForSite - sss
 func (pm *PluginManager) GetPluginForSite(urlString string) *types.AbstractPlugin {
 	siteName := getPluginNameFromURL(urlString)
