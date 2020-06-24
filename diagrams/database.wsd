@@ -1,0 +1,147 @@
+@startuml
+
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <color:blue><b>x</b></color>
+!define unique(x) <color:green><b>x</b></color>
+!define not_null(x) <u>x</u>
+!define VARCHAR(x) <color:gray>VARCHAR[x]</color>
+
+!unquoted procedure Table(name,desc)
+class name as "desc" << (T,#FFAAAA) >>
+!endprocedure
+
+hide methods
+hide stereotypes
+
+' entities
+
+Table(User, "User") {
+    primary_key(id) INTEGER
+    not_null(unique(user_hash)) VARCHAR(40)
+    not_null(unique(login)) VARCHAR(32)
+    not_null(password) VARCHAR(128)
+    not_null(group_id) INTEGER
+}
+
+Table(Group, "Group") {
+    primary_key(id) INTEGER
+    not_null(unique(name)) VARCHAR(32)
+}
+
+Table(UserToGroup, "UserToGroup") {
+    primary_key(user_id) INTEGER
+    primary_key(group_id) INTEGER
+}
+
+Table(Session, "Session") {
+    primary_key(id) INTEGER
+    not_null(user_id) INTEGER
+    not_null(ip) VARCHAR(16)
+    not_null(cookie) VARCHAR(40)
+    not_null(stamp) TIMESTAMP
+}
+
+Table(UploadItem, "UploadItem") {
+    primary_key(id) INTEGER
+    not_null(user_id) INTEGER
+    not_null(url) TEXT
+    not_null(unique(url_hash)) VARCHAR(40)
+    not_null(stamp) TIMESTAMP
+}
+
+Table(Readed, "Readed") {
+    primary_key(user_id) INTEGER foreign_key(User[id])
+    primary_key(manga_id) INTEGER foreign_key(Manga[id])
+    primary_key(chapter_id) INTEGER foreign_key(Chapter[id])
+    primary_key(page_id) INTEGER
+}
+
+Table(Manga, "Manga") {
+    primary_key(id) INTEGER
+    not_null(manga_hash) VARCHAR(40)
+    not_null(url) TEXT
+    not_null(title) TEXT
+    not_null(title_alternative) TEXT
+    not_null(description) TEXT
+    not_null(covers) INTEGER
+    not_null(volumes) INTEGER
+    not_null(chapters) INTEGER
+    not_null(year) INTEGER
+    not_null(translation_status) INTEGER
+    not_null(status) INTEGER
+}
+
+Table(Chapter, "Chapter") {
+    primary_key(id) INTEGER
+    not_null(unique(manga_id)) INTEGER foreign_key(Manga[id])
+    not_null(unique(chapter_hash)) VARCHAR(32)
+    not_null(chapter) TEXT
+    not_null(pages) INTEGER
+    not_null(index) TIMESTAMP
+}
+
+Table(Genre, "Genre") {
+    primary_key(id) INTEGER
+    not_null(unique(value)) VARCHAR(64)
+}
+
+Table(Translator, "Translator") {
+    primary_key(id) INTEGER
+    not_null(unique(value)) VARCHAR(128)
+}
+
+Table(Author, "Author") {
+    primary_key(id) INTEGER
+    not_null(unique(value)) VARCHAR(128)
+}
+
+Table(Artist, "Artist") {
+    primary_key(id) INTEGER
+    not_null(unique(value)) VARCHAR(128)
+}
+
+
+Table(MangaToGenre, "MangaToGenre") {
+    not_null(genre_id) INTEGER foreign_key(Genre[id])
+    not_null(manga_id) INTEGER foreign_key(Manga[id])
+}
+
+Table(MangaToTranslator, "MangaToTranslator") {
+    not_null(translator_id) INTEGER foreign_key(Translator[id])
+    not_null(manga_id) INTEGER foreign_key(Manga[id])
+}
+
+Table(MangaToAuthor, "MangaToAuthor") {
+    not_null(author_id) INTEGER foreign_key(Author[id])
+    not_null(manga_id) INTEGER foreign_key(Manga[id])
+}
+
+Table(MangaToArtist, "MangaToArtist") {
+    not_null(artist_id) INTEGER foreign_key(Artist[id])
+    not_null(manga_id) INTEGER foreign_key(Manga[id])
+}
+
+
+User "1" --> "*" Session : "A user may have\n many sessions"
+User "1" --> "*" UserToGroup: "A user may be \nin many groups"
+Group "1" --> "*" UserToGroup: "A group may \ncontain many users"
+User "1" --> "*" UploadItem : "A user may have\n many uploads"
+
+User "1" --> "*" Readed : "A user may have\n many readed manga"
+Readed "1" --> "*" Manga : "Many manga may\nbe readed"
+Readed "1" --> "*" Chapter : "Many chapters of manga\nmay be readed"
+
+
+Manga --> "*" Chapter : "Manga may have\nmany chapters"
+Manga --> "*" MangaToGenre : "Manga may have\nmany genres"
+Manga --> "*" MangaToTranslator : "Manga may have\nmany translators"
+Manga --> "*" MangaToAuthor : "Manga may have\nmany authors"
+Manga --> "*" MangaToArtist : "Manga may have\nmany artist"
+
+MangaToGenre "1" -- "1" Genre : "Manga to genre mapping\ncan be mapped to one genre"
+MangaToTranslator "1" -- "1" Translator : "Manga to translator mapping\ncan be mapped to one translator"
+MangaToAuthor "1" -- "1" Author : "Manga to author mapping\ncan be mapped to one author"
+MangaToArtist "1" -- "1" Artist : "Manga to artist mapping\ncan be mapped to one artist"
+
+
+@enduml
